@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDV Balcão e Delivery · Zé Delivery, iFood e o balcão num lugar só</title>
+<meta name="description" content="Pedidos do Zé Delivery, do iFood, do WhatsApp e do balcão da loja num programa só: estoque único que desliga o produto que zerou nos aplicativos, caixa, fiado, entregas e motoboys.">
+<link rel="icon" href="img/icone.png">
+<style>
+  :root{--am:#F8C630;--am2:#FFF4CC;--esc:#1d1d1f;--cinza:#5f5f66;--borda:#e6e3dc;--fundo:#f6f4ef;--verde:#1f7a3a}
+  *{box-sizing:border-box} html{scroll-behavior:smooth}
+  body{margin:0;font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif;color:var(--esc);background:var(--fundo)}
+  a{color:inherit}
+  .cx{max-width:1120px;margin:0 auto;padding:0 20px}
+  header{background:var(--esc);color:#fff}
+  .nav{display:flex;align-items:center;gap:12px;padding:14px 0}
+  .marca{display:flex;align-items:center;gap:10px;font-weight:800;margin-right:auto}
+  .marca img{width:38px;height:38px;border-radius:9px}
+  .nav a.l{color:#ddd;text-decoration:none;font-size:14px} .nav a.l:hover{color:#fff}
+  .bt{display:inline-block;background:var(--am);color:var(--esc);font-weight:800;text-decoration:none;border-radius:12px;padding:13px 22px;border:0}
+  .bt.s{background:transparent;color:#fff;border:2px solid #555}
+  .hero{padding:56px 0 64px;display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center}
+  .hero h1{font-size:44px;line-height:1.1;margin:0 0 16px} .hero h1 b{color:var(--am)}
+  .hero p{color:#cfcfcf;font-size:18px;margin:0 0 26px}
+  .hero .acoes{display:flex;gap:12px;flex-wrap:wrap}
+  .hero img{width:100%;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.45);border:1px solid #333}
+  .aviso{font-size:12px;color:#9a9aa0;margin-top:14px}
+  section{padding:64px 0}
+  h2{font-size:32px;margin:0 0 10px;line-height:1.2} .sub{color:var(--cinza);margin:0 0 30px;font-size:17px}
+  .tres{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .card{background:#fff;border:1px solid var(--borda);border-radius:16px;padding:22px}
+  .card h3{margin:6px 0 6px;font-size:19px} .card p{margin:0;color:var(--cinza)}
+  .ic{width:44px;height:44px;border-radius:12px;background:var(--am2);display:grid;place-items:center;font-size:22px}
+  .bloco{display:grid;grid-template-columns:1fr 1.25fr;gap:40px;align-items:center;margin:0 0 56px}
+  .bloco.inv{grid-template-columns:1.25fr 1fr} .bloco.inv .txt{order:2}
+  .bloco img{width:100%;border-radius:14px;border:1px solid var(--borda);box-shadow:0 10px 30px rgba(0,0,0,.08);background:#fff}
+  .bloco h3{font-size:24px;margin:0 0 10px} .bloco ul{margin:10px 0 0;padding-left:20px;color:var(--cinza)} .bloco li{margin:6px 0}
+  .passos{counter-reset:p;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .passo{background:#fff;border:1px solid var(--borda);border-radius:16px;padding:20px;position:relative}
+  .passo:before{counter-increment:p;content:counter(p);position:absolute;top:-14px;left:18px;width:30px;height:30px;border-radius:50%;background:var(--esc);color:var(--am);display:grid;place-items:center;font-weight:800}
+  .passo h3{margin:8px 0 6px;font-size:17px} .passo p{margin:0;color:var(--cinza);font-size:14px}
+  .preco{background:var(--esc);color:#fff;border-radius:20px;padding:36px;display:grid;grid-template-columns:1.2fr 1fr;gap:30px;align-items:center}
+  .preco h2{color:#fff} .preco p{color:#cfcfcf;margin:0 0 8px} .preco ul{color:#ddd;padding-left:20px;margin:10px 0 0} .preco li{margin:5px 0}
+  .valor{background:#2a2a2d;border-radius:16px;padding:26px;text-align:center}
+  .valor b{display:block;font-size:30px;color:var(--am);margin:6px 0 14px}
+  .faq details{background:#fff;border:1px solid var(--borda);border-radius:14px;padding:16px 20px;margin:0 0 10px}
+  .faq summary{font-weight:700;cursor:pointer} .faq p{color:var(--cinza);margin:10px 0 0}
+  footer{background:var(--esc);color:#9a9aa0;font-size:13px;padding:30px 0}
+  footer p{margin:4px 0}
+  .zap{position:fixed;right:20px;bottom:20px;background:#25a35a;color:#fff;font-weight:800;text-decoration:none;border-radius:30px;padding:13px 20px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+  @media (max-width:860px){
+    .hero,.bloco,.bloco.inv,.preco{grid-template-columns:1fr} .bloco.inv .txt{order:0}
+    .tres,.passos{grid-template-columns:1fr} .hero h1{font-size:34px} .nav a.l{display:none}
+  }
+</style></head><body>
+<header>
+  <div class="cx nav">
+    <div class="marca"><img src="img/icone.png" alt="">PDV Balcão e Delivery</div>
+    <a class="l" href="#video">Vídeo</a><a class="l" href="#como-funciona">Como funciona</a><a class="l" href="#comecar">Como começar</a><a class="l" href="#preco">Preço</a><a class="l" href="#duvidas">Dúvidas</a>
+  </div>
+  <div class="cx hero">
+    <div>
+      <h1>Zé Delivery, iFood e o balcão da loja <b>num lugar só</b></h1>
+      <p>Todos os pedidos numa tela, um estoque só que desliga sozinho o produto que acabou nos aplicativos, caixa do balcão, fiado, entregas e motoboys. Feito para loja de bebidas.</p>
+      <div class="acoes">
+        <a class="bt" href="https://github.com/emvixcomercio-creator/pdv-balcao-delivery-versoes/releases/latest/download/PDVBalcaoDelivery-Instalar.exe">Baixar para Windows</a>
+        <a class="bt s" href="https://wa.me/5521951113469?text=Quero%20saber%20do%20PDV%20Balc%C3%A3o%20e%20Delivery">Falar no WhatsApp</a>
+      </div>
+      <div class="aviso">Programa para Windows. Sem relação oficial com o Zé Delivery, a Ambev, o iFood, o WhatsApp ou a Meta.</div>
+    </div>
+    <img src="img/14-pedidos.png" alt="Tela Pedidos: Zé, iFood e balcão numa lista só, com o prazo e os atrasados">
+  </div>
+</header>
+
+<section id="video" style="padding-bottom:0">
+  <div class="cx" style="text-align:center">
+    <h2>Veja o PDV funcionando</h2>
+    <p class="sub" style="margin-left:auto;margin-right:auto">Em um minuto e meio: pedidos, estoque único, balcão, motoboys, fechamento do Zé, impressão e relatórios.</p>
+    <video controls playsinline preload="metadata" poster="img/capa.jpg" width="1280" height="720" style="width:100%;max-width:960px;height:auto;aspect-ratio:16/9;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.18);background:#1c1c1e">
+      <source src="img/demo.mp4" type="video/mp4">
+    </video>
+  </div>
+</section>
+
+<section style="padding-bottom:0">
+  <div class="cx">
+    <div style="background:#1c1c1e;color:#fff;border-radius:18px;padding:28px 30px;display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center">
+      <div style="font-size:54px;line-height:1">📦</div>
+      <div>
+        <h2 style="margin:0 0 8px;color:#f6c344">Monitoramento de estoque: desativa sozinho</h2>
+        <p style="margin:0 0 10px;font-size:17px;line-height:1.5">Você diz <b>quantas unidades quer vender no delivery</b>. A cada pedido do Zé, do iFood ou do balcão, o PDV desconta. <b>Acabou: o produto é desativado sozinho</b> no Zé e no iFood, e você não recebe pedido do que não tem. <b>Chegou mercadoria: ele ativa de novo.</b></p>
+        <p style="margin:0;font-size:14px;color:#ccc">Sem cancelamento por falta de produto, sem cliente reclamando e sem perder pontos no iFood. Você escolhe onde ele age: no Zé, no iFood ou nos dois.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="como-funciona">
+  <div class="cx">
+    <h2>O que muda na sua loja</h2>
+    <p class="sub">Você continua usando o Zé, o iFood e o WhatsApp do jeito de sempre: eles abrem dentro do PDV, com o seu login.</p>
+    <div class="tres">
+      <div class="card"><div class="ic">📦</div><h3>Estoque único</h3><p>Vendeu no Zé, no iFood ou no balcão, sai do mesmo estoque. Zerou: o PDV deixa indisponível nos aplicativos. Chegou mercadoria: liga de novo.</p></div>
+      <div class="card"><div class="ic">🛵</div><h3>Pedidos e entregas</h3><p>Uma lista só com os pedidos de todos os canais, o prazo correndo e os atrasados em vermelho. Motoboys com tempo de entrega e avaliação.</p></div>
+      <div class="card"><div class="ic">🧾</div><h3>Balcão completo</h3><p>Venda bipando ou pelo nome, várias formas de pagamento, caixa com sangria e fechamento, fiado, orçamento, entrega pelo WhatsApp.</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="cx">
+    <div class="bloco">
+      <div class="txt"><h3>Estoque que desliga sozinho</h3><p>Coloque a quantidade que você tem para vender no delivery. Quando ela chega a zero, o produto sai do ar no Zé e no iFood; quando entra mercadoria, volta sozinho.</p>
+        <ul><li>Você escolhe onde ele age: no Zé, no iFood ou nos dois.</li><li>Junta o mesmo produto do Zé e do iFood (já vem com uma tabela pronta).</li><li>Conta pela tela, bipando, ou por planilha.</li><li>Travas de segurança: nunca liga o que você desligou de propósito.</li></ul></div>
+      <img src="img/15-estoque-agindo.png" alt="Estoque único: ligar e desligar sozinho no Zé e no iFood">
+    </div>
+    <div class="bloco inv">
+      <div class="txt"><h3>Balcão rápido, com caixa e fiado</h3><p>Abra o caixa, bipe e venda. Tudo com atalhos de teclado.</p>
+        <ul><li>PIX, dinheiro com troco, débito, crédito e fiado, e várias formas na mesma venda.</li><li>Sangria, reforço e fechamento contando a gaveta.</li><li>Entrega própria (F3), orçamento (F6), consumo de funcionário e perdas (F9).</li></ul></div>
+      <img src="img/16-balcao-venda.png" alt="Tela do balcão">
+    </div>
+    <div class="bloco">
+      <div class="txt"><h3>Entregadores: tempo, prazo e estrelas</h3><p>Veja quem entrega mais rápido, quem está dentro do prazo do Zé (Comum e Turbo) e a nota que o cliente deu.</p>
+        <ul><li>Entregas da loja e do Zé juntas, por entregador.</li><li>Adicional do Turbo calculado.</li><li>O que os clientes disseram (comentários das avaliações).</li></ul></div>
+      <img src="img/12-entregadores.png" alt="Entregas por entregador">
+    </div>
+    <div class="bloco inv">
+      <div class="txt"><h3>Fechamento do Zé sem papel</h3><p>A conta dos motoboys por turno, manhã e noite, com as entregas que vêm sozinhas do Zé.</p>
+        <ul><li>Motoboy, entregas, anotações (a conta: -11,00+2+1), ajuste e total.</li><li>Dinheiro, cartão e online do turno, troco e sangria do balcão.</li><li>PDF pronto para mandar no grupo.</li></ul></div>
+      <img src="img/11-fechamento-ze.png" alt="Fechamento do Zé por turno">
+    </div>
+    <div class="bloco">
+      <div class="txt"><h3>Relatórios de todos os canais</h3><p>Quanto vendeu no balcão, no Zé e no iFood, os produtos mais vendidos somando tudo e como cada valor se divide (produtos, frete, promoções).</p></div>
+      <img src="img/11-relatorio-canais.png" alt="Relatório de todos os canais">
+    </div>
+  </div>
+</section>
+
+<section id="comecar" style="background:#fff;border-top:1px solid var(--borda);border-bottom:1px solid var(--borda)">
+  <div class="cx">
+    <h2>Como começar</h2>
+    <p class="sub">O próprio PDV mostra os passos na primeira vez ("Começar a usar o PDV").</p>
+    <div class="passos">
+      <div class="passo"><h3>Instale</h3><p>Baixe e instale no computador da loja. As atualizações chegam sozinhas.</p></div>
+      <div class="passo"><h3>Entre nos aplicativos</h3><p>Zé Delivery, iFood (App Separador) e WhatsApp, com os seus logins. Eles ficam guardados.</p></div>
+      <div class="passo"><h3>Conte o estoque</h3><p>O PDV lê os produtos do Zé e do iFood, junta os iguais e você lança a quantidade.</p></div>
+      <div class="passo"><h3>Ligue o estoque único</h3><p>Escolha Zé, iFood ou os dois. A partir daí, zerou desliga e chegou mercadoria liga.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="preco">
+  <div class="cx preco">
+    <div><h2>Teste grátis na sua loja</h2><p>Instale, preencha o cadastro da loja e use tudo por 7 dias, com os seus pedidos.</p>
+      <ul><li>Zé Delivery, iFood, WhatsApp e balcão num lugar só</li><li>Monitoramento de estoque: acabou, desativa sozinho no Zé e no iFood</li><li>Caixa, fiado, orçamento, entregas e motoboys</li><li>Fechamento do Zé e impressão de pedidos com prévia</li><li>Relatórios de todos os canais</li><li><b>Suporte Entrega e Assistente do Separador inclusos</b></li><li>Atualizações automáticas</li></ul></div>
+    <div class="valor">7 dias grátis, depois<b>R$ 49,90 por mês</b><a class="bt" href="https://github.com/emvixcomercio-creator/pdv-balcao-delivery-versoes/releases/latest/download/PDVBalcaoDelivery-Instalar.exe">Baixar e testar grátis</a><a href="https://wa.me/5521951113469?text=Quero%20saber%20do%20PDV%20Balc%C3%A3o%20e%20Delivery" style="color:#ddd;font-size:14px;margin-top:10px;display:inline-block">ou fale com a gente no WhatsApp</a></div>
+  </div>
+</section>
+
+<section id="duvidas" class="faq" style="padding-top:0">
+  <div class="cx">
+    <h2>Dúvidas</h2>
+    <details><summary>Preciso parar de usar o Zé e o iFood como uso hoje?</summary><p>Não. O Zé Delivery, o App Separador do iFood e o WhatsApp abrem dentro do PDV, com o seu login, do mesmo jeito. O PDV lê os pedidos e cuida do estoque.</p></details>
+    <details><summary>O PDV muda alguma coisa nos aplicativos sozinho?</summary><p>Só o que você ligar: deixar indisponível o produto que zerou e ligar de novo quando chega mercadoria, no Zé, no iFood ou nos dois. O resto é só leitura.</p></details>
+    <details><summary>E se a internet cair?</summary><p>O balcão continua vendendo. Quando a internet volta, o PDV lê de novo os pedidos dos aplicativos.</p></details>
+    <details><summary>Funciona com o Suporte Entrega e o Assistente do Separador?</summary><p>Sim, e os dois já vêm incluídos na licença do PDV, sem pagar à parte: o Suporte Entrega no Zé (grupo dos motoboys) e o Assistente do Separador no iFood (portfólio ideal, mais vendidos, voz). Com o estoque único ligado, desliga-se o estoque próprio deles para não mexerem duas vezes no mesmo produto.</p></details>
+    <details><summary>Quanto custa?</summary><p>7 dias grátis. Depois, R$ 49,90 por mês por loja, pago por PIX, já com o Suporte Entrega e o Assistente do Separador.</p></details>
+    <details><summary>Emite nota fiscal?</summary><p>Ainda não. Fale com a gente se você precisa da nota no balcão.</p></details>
+  </div>
+</section>
+
+<footer><div class="cx">
+  <p><b style="color:#fff">PDV Balcão e Delivery</b> · Emvix Comércio Ltda · CNPJ 61.960.216/0001-93</p>
+  <p>Zé Delivery, iFood, WhatsApp e as demais marcas citadas são de seus donos. Sem relação oficial com o Zé Delivery, a Ambev, o iFood, o WhatsApp ou a Meta.</p>
+</div></footer>
+<a class="zap" href="https://wa.me/5521951113469?text=Quero%20saber%20do%20PDV%20Balc%C3%A3o%20e%20Delivery">WhatsApp</a>
+</body></html>
