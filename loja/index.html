@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Minha loja</title>
+<meta name="theme-color" content="#FFC629">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Minha loja">
+<link rel="icon" href="icone-192.png"><link rel="apple-touch-icon" href="icone-192.png"><link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<!-- 26/10 SITE DO DONO (Edson: "a galera está cobrando ver o sistema de casa pelo celular, acessar suas vendas"; "só o dono
+     ver"; "seria bom se fosse pelo site"): o dono entra com o e-mail da licença do PDV e a senha que ele cria no PDV
+     (Painel geral > Ver no celular). Os números vêm do resumo que o PDV da loja manda a cada 2 min. -->
+<style>
+  :root{--bg:#FAF8F6;--card:#fff;--ink:#1D1B1C;--muted:#6b6468;--line:#E7E2DE;--am:#FFC629;--soft:#FFF3C4;--ok:#1B7F3B;--ok2:#E3F3E9;--bad:#C5221F;--bad2:#FCE8E6;
+    --ze:#C08F00;--if:#EA1D2C;--bal:#3D6FD8;--barra:#EFECE5}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141213;--card:#1D1B1C;--ink:#F1EEEB;--muted:#ABA4A8;--line:#332F30;--soft:#3A3113;--ok:#6FCF97;--ok2:#183323;--bad:#FF8A80;--bad2:#3B1A19;--barra:#2A2627}}
+  :root[data-theme="dark"]{--bg:#141213;--card:#1D1B1C;--ink:#F1EEEB;--muted:#ABA4A8;--line:#332F30;--soft:#3A3113;--ok:#6FCF97;--ok2:#183323;--bad:#FF8A80;--bad2:#3B1A19;--barra:#2A2627}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-text-size-adjust:100%}
+  .wrap{max-width:560px;margin:0 auto;padding:0 16px 40px}
+  header{position:sticky;top:0;z-index:3;background:var(--am);color:#1A1600;padding:max(12px,env(safe-area-inset-top)) 16px 12px}
+  header .in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px}
+  header img{width:30px;height:30px;border-radius:8px}
+  header b{font-size:17px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tag{font-size:12px;font-weight:700;border-radius:20px;padding:4px 10px;background:rgba(0,0,0,.08);white-space:nowrap}
+  .estado{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);margin:14px 2px 10px}
+  .bola{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
+  .bola.on{background:#22a559;box-shadow:0 0 0 4px rgba(34,165,89,.18)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+  .card h2{font-size:14px;margin:0 0 10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .grande{font-size:38px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+  .sub{font-size:14px;color:var(--muted);margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .var{font-weight:700;font-size:13px;border-radius:12px;padding:2px 8px}
+  .var.sobe{background:var(--ok2);color:var(--ok)}.var.desce{background:var(--bad2);color:var(--bad)}
+  .tres{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+  .mini{background:var(--bg);border-radius:12px;padding:10px}
+  .mini small{display:block;font-size:12px;color:var(--muted)} .mini b{font-size:18px;font-variant-numeric:tabular-nums}
+  .barra{display:flex;height:12px;border-radius:8px;overflow:hidden;background:var(--barra);margin:4px 0 12px}
+  .linha{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:15px}
+  .linha:first-of-type{border-top:0}
+  .linha .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .linha .v{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .linha .q{color:var(--muted);font-size:13px;white-space:nowrap}
+  .ponto{width:10px;height:10px;border-radius:3px;flex:none}
+  .dias{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:130px;margin-top:6px}
+  .dia{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;font-size:11px;color:var(--muted)}
+  .dia i{display:block;width:100%;max-width:34px;background:var(--am);border-radius:6px 6px 2px 2px;min-height:3px}
+  .dia{cursor:pointer} .dia.sel i{background:var(--ink)} .dia.sel{color:var(--ink);font-weight:700}
+  .aviso{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:12px}
+  .aviso.bad{background:var(--bad2);color:var(--bad)}
+  .bt{display:block;width:100%;font:700 16px/1 inherit;padding:15px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);cursor:pointer}
+  .bt.leve{background:none;color:var(--ink);border:1px solid var(--line);font-weight:600;font-size:14px;padding:11px}
+  .lnk{background:none;border:0;color:var(--bad);font:600 14px inherit;cursor:pointer;padding:4px 0}
+  label{display:block;font-size:14px;color:var(--muted);margin:12px 0 5px}
+  input{width:100%;font:inherit;font-size:17px;padding:13px 12px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+  input:focus{outline:0;border-color:var(--am)}
+  .erro{color:var(--bad);font-size:14px;min-height:20px;margin:10px 0}
+  .nota{font-size:13px;color:var(--muted)}
+  /* 0.0.99: pedidos ao vivo e vendas por período */
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+  .chips button{font:inherit;font-size:13px;font-weight:600;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:transparent;color:inherit}
+  .chips button.on{background:#1d1b1c;color:#fff;border-color:#1d1b1c}
+  .ped{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;padding:9px 0;border-top:1px solid var(--line);align-items:center}
+  .ped:first-child{border-top:0}
+  .ped .cn{font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px}
+  .cn.ze{background:#fde68a;color:#6b4a00}.cn.ifood{background:#fee2e2;color:#b91c1c}.cn.balcao{background:#e0ecff;color:#1d4ed8}
+  .ped .num{font-weight:700;font-size:14px}
+  .ped .st{font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+  .st.novo,.st.pausado{background:#fff4e0;color:#9a5300}.st.separando,.st.naLoja{background:#eaf1fe;color:#1d4ed8}.st.caminho{background:#e7f6ec;color:#11692f}
+  .st.entregue{background:#f1f0ee;color:#555}.st.cancelado{background:#fdecec;color:#b42318}
+  .ped .det{grid-column:2/4;font-size:12px;color:var(--muted)}
+  .ped.atrasado .num{color:#dc2626}
+  .datas{display:flex;gap:8px;margin:0 0 10px}.datas input{flex:1;font:inherit;padding:8px;border:1px solid var(--line);border-radius:10px;background:transparent;color:inherit}
+  [hidden]{display:none!important}
+</style></head><body>
+<header><div class="in"><img src="../img/icone.png" alt=""><b id="nomeLoja">Minha loja</b><span class="tag" id="hora"></span></div></header>
+<div class="wrap">
+  <!-- Entrar -->
+  <div id="telaEntrar" hidden>
+    <div class="card" style="margin-top:16px">
+      <h2>Entrar na minha loja</h2>
+      <div class="nota">Use o e-mail da licença do PDV e o seu <b>PIN de Administrador</b> (o mesmo que você usa para entrar no PDV).</div>
+      <form id="formEntrar">
+        <label for="email">E-mail</label><input id="email" type="email" autocomplete="username" inputmode="email" required>
+        <label for="senha">PIN do Administrador</label><input id="senha" type="password" inputmode="numeric" autocomplete="current-password" required>
+        <div class="erro" id="erro"></div>
+        <button class="bt" id="btEntrar">Entrar</button>
+      </form>
+    </div>
+    <div class="nota" style="text-align:center">Esqueceu o PIN? Troque no PDV, com o código de recuperação (tela de entrada do PDV).</div>
+  </div>
+  <!-- Resumo -->
+  <div id="telaResumo" hidden>
+    <!-- 27/10: pôr na tela de início (Android: 1 toque; iPhone: a dica do Compartilhar) -->
+    <div class="card" id="instalar" hidden style="border-color:#FFC629;background:#fffaeb">
+      <b>📲 Deixe "Minha loja" na tela de início</b>
+      <div class="nota" id="instalarTexto" style="margin:4px 0 10px">Abre como aplicativo, sem digitar nada.</div>
+      <button class="bt" id="instalarBt">Pôr na tela de início</button> <button class="bt" id="instalarNao" style="background:transparent;border:1px solid var(--line);color:inherit">Agora não</button>
+    </div>
+    <div class="estado"><span class="bola" id="bola"></span><span id="estado">...</span></div>
+    <div id="avisos"></div>
+    <div class="card">
+      <h2>Vendas de hoje</h2>
+      <div class="grande" id="hojeTotal">R$ 0</div>
+      <div class="sub" id="hojeComp"></div>
+      <div class="tres">
+        <div class="mini"><small>Pedidos</small><b id="hojePed">0</b></div>
+        <div class="mini"><small>Ticket médio</small><b id="hojeTicket">R$ 0</b></div>
+        <div class="mini"><small>No mês</small><b id="mesTotal">R$ 0</b></div>
+      </div>
+    </div>
+    <div class="card" id="cardLucro" hidden><h2>Lucro do mês até agora</h2><div class="grande" id="lucroValor">R$ 0</div><div class="sub" id="lucroSub"></div></div>
+    <div class="card"><h2>Por canal hoje</h2><div class="barra" id="barra"></div><div id="canais"></div></div>
+    <div class="card"><h2>Agora</h2><div id="agora"></div></div>
+    <div class="card"><h2>Pedidos de hoje <span class="tag" id="pedVivo" style="font-size:11px;vertical-align:middle"></span></h2>
+      <div class="chips" id="pedFiltro"><button data-f="and" class="on">Em andamento</button><button data-f="todos">Todos</button></div>
+      <div id="pedidos"></div></div>
+    <div class="card"><h2>Vendas por período</h2>
+      <div class="chips" id="perChips"><button data-p="hoje" class="on">Hoje</button><button data-p="ontem">Ontem</button><button data-p="7">7 dias</button><button data-p="mes">Este mês</button><button data-p="mesant">Mês passado</button><button data-p="esc">Escolher datas</button></div>
+      <div class="datas" id="perDatas" hidden><input type="date" id="perDe"><input type="date" id="perAte"></div>
+      <div class="grande" id="perTotal">R$ 0</div><div class="sub" id="perSub"></div><div id="perCanais" style="margin-top:8px"></div></div>
+    <div class="card"><h2>Últimos 7 dias</h2><div class="dias" id="dias"></div><div class="sub" id="semana"></div><div id="diaDet"></div></div>
+    <div class="card"><h2>Mais vendidos hoje</h2><div id="top"></div></div>
+    <div class="card"><h2>Suporte dos motoboys hoje</h2><div id="suporte"></div></div>
+    <!-- 27/10 (Edson: "essas informações de aparelhos conectados não têm necessidade"): a lista fica só no PDV (Ver no celular). -->
+
+    <button class="bt leve" id="sair">Sair deste aparelho</button>
+  </div>
+</div>
+<script>
+  // Os dados ficam no servidor da licença (o mesmo do admin); esta página fica no site do PDV.
+  const API = 'https://suporte-entrega.onrender.com';
+  const $ = (id) => document.getElementById(id);
+  const esc = (t) => String(t == null ? '' : t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const reais = (c, cent) => 'R$ ' + (Number(c || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: cent ? 2 : 0, maximumFractionDigits: cent ? 2 : 0 });
+  const hora = (iso) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const quando = (iso) => { const d = new Date(iso), h = new Date(); return d.toDateString() === h.toDateString() ? 'hoje ' + hora(iso) : d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + hora(iso); };
+  const CANAIS = [['ze', 'Zé Delivery', 'var(--ze)'], ['ifood', 'iFood', 'var(--if)'], ['balcao', 'Balcão', 'var(--bal)']];
+  let token = ''; try { token = localStorage.getItem('lojaToken') || ''; } catch (_) {}
+  const guardar = (t) => { token = t; try { t ? localStorage.setItem('lojaToken', t) : localStorage.removeItem('lojaToken'); } catch (_) {} };
+
+  async function api(metodo, url, corpo) {
+    const r = await fetch(API + url, { method: metodo, headers: { 'content-type': 'application/json', ...(token ? { authorization: 'Bearer ' + token } : {}) }, body: corpo ? JSON.stringify(corpo) : undefined });
+    const j = await r.json().catch(() => ({}));
+    if (r.status === 401 && url !== '/v1/loja/entrar') { guardar(''); mostrar('entrar'); }
+    if (!r.ok) throw new Error(j.detail || 'Não deu certo. Tente de novo.');
+    return j;
+  }
+  function mostrar(qual) { $('telaEntrar').hidden = qual !== 'entrar'; $('telaResumo').hidden = qual !== 'resumo'; }
+
+  $('formEntrar').onsubmit = async (e) => {
+    e.preventDefault(); $('erro').textContent = ''; $('btEntrar').disabled = true;
+    try { const r = await api('POST', '/v1/loja/entrar', { email: $('email').value, senha: $('senha').value }); guardar(r.token); $('senha').value = ''; await carregar(); }
+    catch (er) { $('erro').textContent = er.message; } finally { $('btEntrar').disabled = false; }
+  };
+  $('sair').onclick = async () => { if (!confirm('Sair deste aparelho?')) return; try { await api('POST', '/v1/loja/sair', {}); } catch (_) {} guardar(''); mostrar('entrar'); };
+
+  function comparar(agora, antes, texto) {
+    if (!antes) return `<span>${texto}: sem vendas</span>`;
+    const p = Math.round(((agora - antes) / antes) * 100);
+    return `<span class="var ${p >= 0 ? 'sobe' : 'desce'}">${p >= 0 ? '▲' : '▼'} ${Math.abs(p)}%</span><span>${texto} (${reais(antes)})</span>`;
+  }
+  function desenhar(r) {
+    const d = r.dados;
+    $('nomeLoja').textContent = r.loja || (d && d.loja) || 'Minha loja';
+    if (!d) { $('estado').textContent = 'O PDV da loja ainda não mandou os números. Ele precisa estar na versão 0.0.98 e aberto.'; $('bola').className = 'bola'; mostrar('resumo'); return; }
+    // Visto há menos de 6 min = aberto (o PDV manda a cada 2 min).
+    const aberto = r.recebido && Date.now() - new Date(r.recebido).getTime() < 6 * 60e3;
+    $('bola').className = 'bola' + (aberto ? ' on' : '');
+    $('estado').textContent = aberto ? 'PDV aberto agora · atualizado ' + hora(r.recebido) : 'PDV fechado · último envio ' + quando(r.recebido);
+    $('hora').textContent = aberto ? 'ao vivo' : 'fechado';
+    const av = [];
+    if (aberto && d.apps && d.apps.ze && d.apps.ze !== 'aberto' && d.apps.ze !== 'desligado') av.push(['bad', 'O Zé está fora do ar no PDV (' + esc(d.apps.ze) + ').']);
+    if (aberto && d.suporte && d.suporte.cor === 'vermelho') av.push(['bad', 'Suporte parado: ' + esc(d.suporte.texto || '')]);
+    $('avisos').innerHTML = av.map(([c, t]) => `<div class="aviso ${c}">${t}</div>`).join('');
+    const h = d.hoje || {};
+    $('hojeTotal').textContent = reais(h.total, true);
+    $('hojeComp').innerHTML = comparar(h.total || 0, d.semanaPassada && d.semanaPassada.total, 'vs ' + (d.semanaPassada && d.semanaPassada.nome || 'semana passada') + ' até esta hora');
+    $('hojePed').textContent = h.pedidos || 0; $('hojeTicket').textContent = reais(h.ticket); $('mesTotal').textContent = reais(d.mes && d.mes.total);
+    // 0.0.98: lucro do mês (Financeiro do PDV), com o que falta preencher para ele ficar certo.
+    const lu = d.lucro;
+    $('cardLucro').hidden = !lu;
+    if (lu) {
+      $('lucroValor').textContent = reais(lu.valor, true); $('lucroValor').style.color = lu.valor < 0 ? 'var(--bad)' : 'var(--ok)';
+      const falta = [lu.faltaTaxa && 'a taxa dos aplicativos', lu.semCusto && lu.semCusto + ' produto(s) sem custo', lu.semFixas && 'as despesas fixas'].filter(Boolean);
+      $('lucroSub').innerHTML = `<span>margem ${(lu.margem * 100).toFixed(1).replace('.', ',')}%</span>` + (falta.length ? `<span>· estimado: falta preencher no PDV (Financeiro) ${esc(falta.join(', '))}</span>` : '');
+    }
+    const tot = CANAIS.reduce((s, [k]) => s + ((h[k] && h[k].total) || 0), 0);
+    $('barra').innerHTML = CANAIS.map(([k, , cor]) => { const v = (h[k] && h[k].total) || 0; return v ? `<i style="width:${(v / tot) * 100}%;background:${cor}"></i>` : ''; }).join('');
+    $('canais').innerHTML = CANAIS.map(([k, nome, cor]) => { const c = h[k] || {}; return `<div class="linha"><span class="ponto" style="background:${cor}"></span><span class="nm">${nome}</span><span class="q">${c.pedidos || 0} pedidos</span><span class="v">${reais(c.total, true)}</span></div>`; }).join('');
+    const a = d.andamento || {}, cx = d.caixa;
+    $('agora').innerHTML = [
+      ['Pedidos novos ou separando', (a.novo || 0) + (a.separando || 0)], ['A caminho', a.caminho || 0],
+      ['Caixa do Balcão', cx ? (cx.aberto ? 'aberto desde ' + hora(cx.abertoEm) : 'fechado') : '—'],
+      ...(cx && cx.aberto ? [['Dinheiro na gaveta (esperado)', reais(cx.esperado, true)]] : []),
+    ].map(([n, v]) => `<div class="linha"><span class="nm">${n}</span><span class="v">${esc(v)}</span></div>`).join('');
+    const dias = d.dias || [], max = Math.max(1, ...dias.map((x) => x.total || 0));
+    // 31/10 (Edson: "apertar no gráfico e lá mostrar a mesma coisa"): tocar no dia mostra o dia no quadro Vendas por período.
+    $('dias').innerHTML = dias.map((x) => `<div class="dia" data-dia="${esc(x.dia || '')}" title="${reais(x.total, true)}"><span>${x.total ? reais(x.total).replace('R$ ', '') : ''}</span><i style="height:${Math.round(((x.total || 0) / max) * 90)}px"></i><span>${esc(x.nome)}</span></div>`).join('');
+    $('semana').innerHTML = `<span>7 dias: <b>${reais(dias.reduce((s, x) => s + (x.total || 0), 0), true)}</b> · ${dias.reduce((s, x) => s + (x.pedidos || 0), 0)} pedidos</span>`;
+    $('top').innerHTML = (d.top || []).length ? d.top.map((p) => `<div class="linha"><span class="nm">${esc(p.nome)}</span><span class="q">${p.qtd} un</span><span class="v">${p.total ? reais(p.total, true) : ''}</span></div>`).join('') : '<div class="nota">Nenhuma venda hoje ainda.</div>';
+    const s = d.suporte;
+    $('suporte').innerHTML = s ? `<div class="linha"><span class="nm">Telefones enviados aos motoboys</span><span class="v">${s.certos || 0}</span></div>
+      <div class="linha"><span class="nm">Não achados ou com falha</span><span class="v">${(s.falhas || 0) + (s.nome || 0) + (s.numero || 0)}</span></div>
+      <div class="linha"><span class="nm">Situação</span><span class="v">${s.cor === 'vermelho' ? 'parado' : s.cor === 'amarelo' ? 'atenção' : s.cor ? 'funcionando' : '—'}</span></div>` : '<div class="nota">O Suporte não está ligado nesta loja.</div>';
+    ultimo = d; desenharPedidos(); desenharPeriodo(); desenharDia();
+    mostrar('resumo');
+  }
+  // 0.0.99 PEDIDOS AO VIVO (sem dados de cliente) e VENDAS POR PERÍODO (dias fechados guardados pelo PDV + hoje).
+  let ultimo = null, pedF = 'and', per = 'hoje', diaSel = '';
+  const SIT = { novo: 'Novo', pausado: 'Novo', separando: 'Separando', naLoja: 'Na loja', caminho: 'A caminho', entregue: 'Entregue', cancelado: 'Cancelado' };
+  const ANDA = ['novo', 'pausado', 'separando', 'naLoja', 'caminho'];
+  const CN = { ze: 'ZÉ', ifood: 'iFOOD', balcao: 'BALCÃO' };
+  function desenharPedidos() {
+    const L = (ultimo && ultimo.pedidos) || null;
+    if (!L) { $('pedidos').innerHTML = '<div class="nota">Atualize o PDV da loja para a versão 0.0.99 para ver os pedidos aqui.</div>'; return; }
+    const V = pedF === 'and' ? L.filter((p) => ANDA.includes(p.s)) : L;
+    $('pedVivo').textContent = $('bola').classList.contains('on') ? '● ao vivo' : '';
+    $('pedidos').innerHTML = V.length ? V.map((p) => {
+      const min = p.t ? Math.round((Date.now() - p.t) / 60000) : null;
+      const det = [p.t ? 'entrou ' + hora(new Date(p.t).toISOString()) + (ANDA.includes(p.s) && min != null ? ' (há ' + min + ' min)' : '') : '', p.tp, p.e && 'entregador ' + p.e, p.a ? '<b style="color:#dc2626">ATRASADO</b>' : ''].filter(Boolean).join(' · ');
+      return `<div class="ped ${p.a ? 'atrasado' : ''}"><span class="cn ${p.c}">${CN[p.c] || esc(p.c)}</span><span class="num">${esc(p.c === 'ze' ? p.n.replace(/(\d{3})(?=\d)/g, '$1 ') : p.n)}</span><span class="st ${esc(p.s)}">${SIT[p.s] || esc(p.s)}</span><span class="det">${det}${p.v != null ? ' · ' + reais(p.v, true) : ''}</span></div>`;
+    }).join('') : `<div class="nota">${pedF === 'and' ? 'Nenhum pedido em andamento agora.' : 'Nenhum pedido hoje ainda.'}</div>`;
+  }
+  const iso = (d) => d.toLocaleDateString('sv-SE');
+  function desenharPeriodo() {
+    const d = ultimo; if (!d) return;
+    const H = d.historico;
+    if (!H && per !== 'hoje') { $('perTotal').textContent = '—'; $('perSub').textContent = 'Atualize o PDV da loja para a versão 0.0.99 para escolher as datas.'; $('perCanais').innerHTML = ''; return; }
+    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    let de, ate;
+    if (per === 'hoje') de = ate = iso(hoje);
+    else if (per === 'ontem') { const o = new Date(hoje); o.setDate(o.getDate() - 1); de = ate = iso(o); }
+    else if (per === '7') { const o = new Date(hoje); o.setDate(o.getDate() - 6); de = iso(o); ate = iso(hoje); }
+    else if (per === 'mes') { de = iso(new Date(hoje.getFullYear(), hoje.getMonth(), 1)); ate = iso(hoje); }
+    else if (per === 'mesant') { de = iso(new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1)); ate = iso(new Date(hoje.getFullYear(), hoje.getMonth(), 0)); }
+    else { de = $('perDe').value; ate = $('perAte').value; if (!de || !ate) { $('perTotal').textContent = '—'; $('perSub').textContent = 'Escolha as duas datas.'; $('perCanais').innerHTML = ''; return; } if (de > ate) [de, ate] = [ate, de]; }
+    const h = d.hoje || {};
+    const dias = (H || []).filter((x) => x.dia >= de && x.dia <= ate);
+    if (iso(hoje) >= de && iso(hoje) <= ate) dias.push({ dia: iso(hoje), ze: h.ze || {}, ifood: h.ifood || {}, balcao: h.balcao || {} });
+    const soma = (k, c) => dias.reduce((s, x) => s + ((x[c] && x[c][k]) || 0), 0);
+    const tot = CANAIS.reduce((s, [c]) => s + soma('total', c), 0), ped = CANAIS.reduce((s, [c]) => s + soma('pedidos', c), 0);
+    const limite = H && H.length ? H[0].dia : null;
+    $('perTotal').textContent = reais(tot, true);
+    $('perSub').innerHTML = `<span>${ped} pedidos · ticket ${reais(ped ? Math.round(tot / ped) : 0)}</span>` + (limite && de < limite ? `<span>· o PDV guarda os últimos 60 dias (desde ${limite.split('-').reverse().join('/')})</span>` : '');
+    $('perCanais').innerHTML = CANAIS.map(([c, nome, cor]) => `<div class="linha"><span class="ponto" style="background:${cor}"></span><span class="nm">${nome}</span><span class="q">${soma('pedidos', c)} pedidos</span><span class="v">${reais(soma('total', c), true)}</span></div>`).join('');
+  }
+  $('pedFiltro').onclick = (e) => { const b = e.target.closest('[data-f]'); if (!b) return; pedF = b.dataset.f; for (const x of $('pedFiltro').children) x.classList.toggle('on', x === b); desenharPedidos(); };
+  $('perChips').onclick = (e) => { const b = e.target.closest('[data-p]'); if (!b) return; per = b.dataset.p; for (const x of $('perChips').children) x.classList.toggle('on', x === b); $('perDatas').hidden = per !== 'esc'; desenharPeriodo(); };
+  $('perDe').onchange = $('perAte').onchange = desenharPeriodo;
+  // 31/10 (Edson: "apertar no gráfico e lá mostrar"; depois: "obriga a tela para cima, tá estranho"): tocar no dia mostra
+  // o dia ali mesmo, embaixo do gráfico (o quadro Vendas por período continua só dos botões).
+  function desenharDia() {
+    const d = ultimo; if (!d) return;
+    const hojeIso = iso(new Date());
+    if (!diaSel) diaSel = hojeIso;
+    for (const b of $('dias').children) b.classList.toggle('sel', b.dataset.dia === diaSel);
+    const h = d.hoje || {};
+    const x = diaSel === hojeIso ? { ze: h.ze || {}, ifood: h.ifood || {}, balcao: h.balcao || {} } : (d.historico || []).find((y) => y.dia === diaSel);
+    const nome = diaSel === hojeIso ? 'Hoje' : new Date(diaSel + 'T12:00').toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' });
+    if (!x) { $('diaDet').innerHTML = `<div class="nota"><b>${esc(nome)}</b>: sem os detalhes deste dia no PDV.</div>`; return; }
+    const tot = CANAIS.reduce((s, [c]) => s + ((x[c] && x[c].total) || 0), 0), ped = CANAIS.reduce((s, [c]) => s + ((x[c] && x[c].pedidos) || 0), 0);
+    $('diaDet').innerHTML = `<div class="sub" style="margin-top:10px"><span><b>${esc(nome.charAt(0).toUpperCase() + nome.slice(1))}</b>: ${reais(tot, true)} · ${ped} pedidos · ticket ${reais(ped ? Math.round(tot / ped) : 0)}</span></div>`
+      + CANAIS.map(([c, n, cor]) => `<div class="linha"><span class="ponto" style="background:${cor}"></span><span class="nm">${n}</span><span class="q">${(x[c] && x[c].pedidos) || 0} pedidos</span><span class="v">${reais((x[c] && x[c].total) || 0, true)}</span></div>`).join('');
+  }
+  $('dias').onclick = (e) => { const b = e.target.closest('[data-dia]'); if (!b || !b.dataset.dia) return; diaSel = b.dataset.dia; desenharDia(); };
+  async function carregar() { if (!token) return mostrar('entrar'); try { desenhar(await api('GET', '/v1/loja/resumo')); } catch (_) {} }
+  carregar();
+  // 0.0.99 AO VIVO: com o site aberto, busca a cada 15 s (o PDV passa a mandar a cada 15 s enquanto o dono olha).
+  setInterval(() => { if (token && !document.hidden) carregar(); }, 15e3);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && token) carregar(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && token) carregar(); });
+  // 27/10 (Edson: "colocar automaticamente na tela de início do celular"): o navegador não deixa instalar sozinho; no Android
+  // aparece o botão (1 toque, pelo pedido do próprio Chrome); no iPhone, a dica do Compartilhar > Adicionar à Tela de Início.
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  const jaInstalado = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  let pedidoInstalar = null;
+  const naoQuer = () => { try { return Date.now() - Number(localStorage.getItem('instalarNao') || 0) < 7 * 864e5; } catch (_) { return false; } };
+  function oferecerInstalar() {
+    if (jaInstalado() || naoQuer() || $('telaResumo').hidden) return;
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (pedidoInstalar) { $('instalarBt').hidden = false; $('instalar').hidden = false; }
+    else if (ios) { $('instalarTexto').innerHTML = 'Toque em <b>Compartilhar</b> (o quadrado com a seta ⬆, embaixo) e depois em <b>Adicionar à Tela de Início</b>.'; $('instalarBt').hidden = true; $('instalar').hidden = false; }
+  }
+  addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); pedidoInstalar = e; oferecerInstalar(); });
+  addEventListener('appinstalled', () => { $('instalar').hidden = true; });
+  $('instalarBt').onclick = async () => { if (!pedidoInstalar) return; pedidoInstalar.prompt(); await pedidoInstalar.userChoice.catch(() => {}); pedidoInstalar = null; $('instalar').hidden = true; };
+  $('instalarNao').onclick = () => { try { localStorage.setItem('instalarNao', String(Date.now())); } catch (_) {} $('instalar').hidden = true; };
+  setInterval(oferecerInstalar, 3000);
+</script>
+</body></html>
