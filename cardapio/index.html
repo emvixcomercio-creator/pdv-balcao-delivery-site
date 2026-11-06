@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cardápio</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1d1b16">
+<style>
+  :root { --am: #f2c230; --am2: #ffd95a; --esc: #1d1b16; --cinza: #6b6452; --linha: #ebe6da; --fundo: #f6f4ef; --verde: #1f7a3a; --verm: #b42318; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.4 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; background: var(--fundo); color: var(--esc); }
+  .caixa { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+  header { background: linear-gradient(135deg, #1d1b16 0%, #2f2a1f 100%); color: #fff; padding: 22px 0 18px; }
+  .loja { display: flex; gap: 14px; align-items: center; }
+  .logo { width: 58px; height: 58px; border-radius: 16px; background: var(--am); color: var(--esc); font: 800 26px/1 inherit;
+          display: grid; place-items: center; flex: none; box-shadow: 0 4px 14px rgba(242,194,48,.35); }
+  .loja h1 { margin: 0; font-size: 22px; letter-spacing: -.2px; }
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .pill { font-size: 12px; padding: 3px 9px; border-radius: 99px; background: rgba(255,255,255,.1); color: #e8e2cf; }
+  .pill.ab { background: rgba(48,160,90,.25); color: #9be7b3; } .pill.fe { background: rgba(220,80,60,.25); color: #ffb4a8; }
+  .barra-topo { position: sticky; top: 0; z-index: 3; background: var(--fundo); padding: 12px 0 8px; border-bottom: 1px solid var(--linha); }
+  .busca { width: 100%; padding: 12px 14px 12px 40px; border-radius: 12px; border: 1px solid var(--linha); font: inherit; background: #fff
+           url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="%236b6452" stroke-width="2"><circle cx="8" cy="8" r="6"/><path d="m13 13 4 4"/></svg>') 13px center no-repeat; }
+  .chips { display: flex; gap: 6px; overflow-x: auto; margin-top: 10px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { padding: 7px 14px; border-radius: 99px; background: #fff; border: 1px solid var(--linha); white-space: nowrap; cursor: pointer; font-size: 14px; }
+  .chip.on { background: var(--esc); color: #fff; border-color: var(--esc); }
+  main { padding-bottom: 120px; }
+  .aviso { background: #fff4e5; border: 1px solid #f6dfb8; border-radius: 12px; padding: 10px 14px; margin: 14px 0 0; }
+  .cat { font-weight: 700; font-size: 18px; margin: 22px 0 10px; }
+  .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+  .card { background: #fff; border-radius: 16px; border: 1px solid var(--linha); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow .15s; }
+  .card:hover { box-shadow: 0 6px 18px rgba(29,27,22,.08); }
+  .foto { height: 150px; display: flex; align-items: center; justify-content: center; background: #fff; padding: 10px; overflow: hidden; }
+  .foto img { max-width: 100%; max-height: 130px; object-fit: contain; }
+  .foto .ic { font-size: 54px; width: 100%; height: 100%; display: grid; place-items: center; border-radius: 12px; }
+  .info { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .nome { font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 39px; }
+  .preco { font-weight: 800; font-size: 17px; }
+  .add { margin-top: auto; border: 0; border-radius: 10px; background: var(--am); padding: 9px; font: 700 14px inherit; cursor: pointer; }
+  .add:hover { background: var(--am2); }
+  .passo { margin-top: auto; display: flex; align-items: center; justify-content: space-between; background: #f6f3ea; border-radius: 10px; }
+  .passo button { width: 38px; height: 38px; border: 0; background: none; font: 700 20px inherit; cursor: pointer; }
+  .passo span { font-weight: 800; }
+  .barra { position: fixed; left: 16px; right: 16px; bottom: 16px; max-width: 560px; margin: 0 auto; background: var(--esc); color: #fff; z-index: 4;
+           border-radius: 16px; padding: 15px 18px; display: none; justify-content: space-between; align-items: center; font-weight: 700; cursor: pointer;
+           box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  .barra b { background: var(--am); color: var(--esc); border-radius: 10px; padding: 7px 12px; }
+  .vazio { text-align: center; color: var(--cinza); padding: 50px 10px; }
+  .tela { position: fixed; inset: 0; background: rgba(20,18,14,.45); display: none; z-index: 5; }
+  .tela.on { display: flex; justify-content: center; align-items: stretch; }
+  .painel { background: #fff; width: 100%; max-width: 520px; display: flex; flex-direction: column; }
+  @media (min-width: 700px) { .tela.on { align-items: center; } .painel { max-height: 92vh; border-radius: 20px; overflow: hidden; } }
+  .cab { padding: 16px 18px; border-bottom: 1px solid var(--linha); font-weight: 700; font-size: 17px; display: flex; gap: 10px; align-items: center; }
+  .cab button { border: 0; background: #f1ede2; width: 34px; height: 34px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+  .corpo { flex: 1; overflow-y: auto; padding: 14px 18px; }
+  .linha { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0; }
+  .tot { border-top: 1px solid var(--linha); margin-top: 6px; padding-top: 8px; font-weight: 800; }
+  label { display: block; font-size: 13px; color: var(--cinza); margin: 12px 0 4px; }
+  input, select { width: 100%; padding: 11px 12px; border: 1px solid #d8d2c2; border-radius: 10px; font: inherit; background: #fff; }
+  .pags { display: flex; gap: 6px; }
+  .pag { flex: 1; padding: 11px 4px; border: 1px solid #d8d2c2; border-radius: 10px; text-align: center; cursor: pointer; }
+  .pag.on { border-color: var(--esc); background: var(--esc); color: #fff; }
+  .enviar { margin: 0 18px 18px; padding: 15px; border: 0; border-radius: 14px; background: var(--am); font: 800 16px inherit; cursor: pointer; }
+  .enviar:disabled { opacity: .5; }
+  .erro { color: var(--verm); margin-top: 10px; min-height: 20px; }
+  .ok { text-align: center; padding: 50px 24px; }
+  footer { text-align: center; color: #a39b88; font-size: 12px; padding: 20px 0 30px; }
+  @media (max-width: 480px) { .grade { grid-template-columns: repeat(2, 1fr); gap: 10px; } .foto { height: 120px; } .foto img { max-height: 100px; } .loja h1 { font-size: 19px; } }
+</style></head><body>
+<header><div class="caixa"><div class="loja"><div class="logo" id="logo">🍺</div>
+  <div><h1 id="nome">Carregando…</h1><div class="pills" id="pills"></div></div></div></div></header>
+<div class="barra-topo"><div class="caixa"><input class="busca" placeholder="Buscar bebida..." id="busca"><div class="chips" id="chips"></div></div></div>
+<main class="caixa" id="lista"><div class="vazio">Carregando o cardápio…</div></main>
+<footer>Pedido feito pelo PDV Balcão e Delivery</footer>
+<div class="barra" id="barra"><span id="bQtd"></span><b>Ver carrinho · <span id="bTot"></span></b></div>
+
+<div class="tela" id="carrinho"><div class="painel">
+  <div class="cab"><button onclick="ir('')" aria-label="Voltar">‹</button>Seu pedido</div>
+  <div class="corpo">
+    <div id="itens"></div>
+    <label>Seu nome</label><input id="fNome" autocomplete="name">
+    <label>Celular com DDD (WhatsApp)</label><input id="fTel" inputmode="tel" autocomplete="tel">
+    <label>Endereço (rua, número, complemento)</label><input id="fEnd" autocomplete="street-address">
+    <label>Ponto de referência</label><input id="fRef">
+    <label>Bairro</label><select id="fBairro"></select>
+    <label>Pagamento na entrega</label>
+    <div class="pags" id="pags"><div class="pag on" data-p="pix">Pix</div><div class="pag" data-p="cartao">Cartão</div><div class="pag" data-p="dinheiro">Dinheiro</div></div>
+    <div id="trocoBox" style="display:none"><label>Troco para quanto? (deixe vazio se não precisar)</label><input id="fTroco" inputmode="decimal" placeholder="Ex.: 100"></div>
+    <label>Observação</label><input id="fObs" placeholder="Ex.: bem gelada">
+    <div id="resumo"></div>
+    <div class="erro" id="erro"></div>
+  </div>
+  <button class="enviar" id="bEnviar">Fazer pedido</button>
+</div></div>
+
+<div class="tela" id="feito"><div class="painel"><div class="ok"><div style="font-size:60px">✅</div><h2>Pedido enviado!</h2>
+  <p id="feitoTxt"></p><p style="color:#6b6452">A loja confirma e o pagamento é feito na entrega.</p>
+  <button class="enviar" style="margin:10px 0 0;width:100%" onclick="location.reload()">Fazer outro pedido</button></div></div></div>
+
+<script>
+  const Q = new URLSearchParams(location.search);
+  const API = Q.get('api') || 'https://suporte-entrega.onrender.com';
+  const SLUG = (Q.get('l') || '').replace(/[^a-z0-9-]/g, '');
+  const $ = (i) => document.getElementById(i);
+  const r = (c) => 'R$ ' + (c / 100).toFixed(2).replace('.', ',');
+  const esc = (s) => String(s).replace(/[&<>"']/g, (x) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[x]));
+  const semAc = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  // Categoria pelo nome (Cervejas, Drinks e ice, Destilados...); a do iFood (p.k) só quando o nome não diz. Ícone e cor pelo tipo.
+  const TIPOS = [['Snacks e doces', '🍫', '#f4ece2', /chocolate|\bbala|halls|chiclete|salgadinho|doritos|ruffles|elma chips|batata|chips|amendoim|biscoito|bolacha|oreo|club social|wafer|bombom|trident|mentos/],
+    ['Cervejas', '🍺', '#fdf0d2', /cerveja|chopp|heineken|brahma|skol|spaten|stella|original|amstel|budweiser|corona|antarctica|itaipava|eisenbahn|imperio|beck|devassa|petra|bohemia/],
+    ['Drinks e ice', '🍹', '#fde7ef', /\bice\b|beats|xeque|cabare|drink|caipi|batida/],
+    ['Destilados', '🥃', '#efe7dc', /vodka|\bgin\b|whisk|cacha|aguardente|pinga|pitu|barreiro|\brum\b|tequila|conhaque|licor|absolut|smirnoff|tanqueray|johnnie|jack daniel|campari|aperol|destilad/],
+    ['Vinhos', '🍷', '#f6e3e8', /vinho|espumante|sangria/], ['Energéticos', '⚡', '#e2ecf6', /energ|red bull|monster|fusion|\btnt\b/],
+    ['Refrigerantes', '🥤', '#fbe3e3', /refri|coca|guaran|pepsi|fanta|sprite|sukita|soda|tonica|h2oh|schweppes|kuat/],
+    ['Águas e sucos', '💧', '#e3f1fb', /^agua|\bagua\b|suco|del valle|\bcha\b|mate|isoton|gatorade|powerade/],
+    ['Gelo e carvão', '🧊', '#eaf4fb', /gelo|carvao/]];
+  const tipoDe = (p) => { const n = semAc(p.n); return TIPOS.find((t) => t[3].test(n)) || ['Outros', '🛒', '#f1ede2']; };
+  let D = null, cat = 'Todos', pag = 'pix', bairroSalvo = '';
+  let carr = {}; try { carr = JSON.parse(localStorage.getItem('carr-' + SLUG) || '{}'); } catch (_) {}
+  const guardar = () => { try { localStorage.setItem('carr-' + SLUG, JSON.stringify(carr)); } catch (_) {} };
+
+  async function carregar() {
+    if (!SLUG) { $('lista').innerHTML = '<div class="vazio">Link incompleto. Peça o link do cardápio à loja.</div>'; $('nome').textContent = 'Cardápio'; return; }
+    try {
+      const res = await fetch(API + '/v1/cardapio/' + SLUG);
+      if (res.status === 404) throw new Error('Cardápio não encontrado. Peça o link certo à loja.');
+      if (!res.ok) throw new Error('Não deu para abrir o cardápio agora. Tente de novo em instantes.');
+      D = await res.json();
+    } catch (e) { $('lista').innerHTML = `<div class="vazio">${esc(e.message || 'Sem internet? Tente de novo.')}</div>`; $('nome').textContent = 'Cardápio'; return; }
+    document.title = D.nome + ' · Cardápio';
+    $('nome').textContent = D.nome;
+    $('logo').textContent = (D.nome.trim()[0] || '🍺').toUpperCase();
+    $('pills').innerHTML = (D.aberto ? '<span class="pill ab">● Aberto</span>' : '<span class="pill fe">● Fechado agora</span>')
+      + (D.minimo ? `<span class="pill">Pedido mínimo ${r(D.minimo)}</span>` : '') + '<span class="pill">Pagamento na entrega</span>';
+    D.produtos.forEach((p) => { const t = tipoDe(p); p.cat = t[0] !== 'Outros' ? t[0] : (p.k || 'Outros'); p.ic = t[1]; p.cor = t[2]; });
+    const pc = new Map(D.produtos.map((p) => [p.c, p]));
+    for (const k of Object.keys(carr)) if (!pc.has(k)) delete carr[k];
+    $('fBairro').innerHTML = '<option value="">Escolha…</option>' + D.bairros.map((b) => `<option>${esc(b.n)}</option>`).join('');
+    if (D.bairros.some((b) => b.n === bairroSalvo)) $('fBairro').value = bairroSalvo;
+    desenhar();
+  }
+  function cartao(p) {
+    const n = carr[p.c] || 0;
+    const icone = `<div class="ic" style="background:${p.cor}">${p.ic}</div>`;
+    const foto = p.i ? `<img src="${esc(p.i)}" loading="lazy" alt="" data-ic="${esc(icone)}">` : icone;
+    const acao = !D.aberto ? '' : n ? `<div class="passo"><button data-m="${esc(p.c)}">−</button><span>${n}</span><button data-p="${esc(p.c)}">+</button></div>` : `<button class="add" data-p="${esc(p.c)}">Adicionar</button>`;
+    return `<div class="card"><div class="foto">${foto}</div><div class="info"><div class="nome">${esc(p.n)}</div><div class="preco">${r(p.p)}</div>${acao}</div></div>`;
+  }
+  function desenhar() {
+    if (!D) return;
+    const conta = {}; D.produtos.forEach((p) => { conta[p.cat] = (conta[p.cat] || 0) + 1; });
+    const cats = Object.keys(conta).sort((a, b) => (a === 'Outros') - (b === 'Outros') || conta[b] - conta[a]);
+    $('chips').innerHTML = ['Todos', ...cats].map((c) => `<div class="chip ${c === cat ? 'on' : ''}" data-c="${esc(c)}">${esc(c)}</div>`).join('');
+    const q = semAc($('busca').value.trim());
+    const L = D.produtos.filter((p) => (cat === 'Todos' || p.cat === cat) && (!q || semAc(p.n).includes(q)));
+    let h = D.aviso ? `<div class="aviso">${esc(D.aviso)}</div>` : '';
+    if (!D.aberto) h += '<div class="aviso">A loja está fechada agora. Dá para ver o cardápio; os pedidos voltam quando ela abrir.</div>';
+    const resumido = cat === 'Todos' && !q;
+    for (const c of cats) {
+      const g = L.filter((p) => p.cat === c).sort((a, b) => (b.i ? 1 : 0) - (a.i ? 1 : 0) || a.n.localeCompare(b.n, 'pt-BR'));
+      if (!g.length) continue;
+      h += `<div class="cat">${esc(c)}</div><div class="grade">${g.slice(0, resumido ? 10 : 400).map(cartao).join('')}</div>`;
+      if (resumido && g.length > 10) h += `<div style="margin-top:10px"><span class="chip" data-c="${esc(c)}">Ver todos de ${esc(c)} (${g.length})</span></div>`;
+    }
+    if (!L.length) h += '<div class="vazio">Nada encontrado.</div>';
+    $('lista').innerHTML = h;
+    $('lista').querySelectorAll('img[data-ic]').forEach((im) => { im.onerror = () => { im.parentNode.innerHTML = im.dataset.ic; }; });
+    const pc = new Map(D.produtos.map((p) => [p.c, p]));
+    const n = Object.values(carr).reduce((a, b) => a + b, 0), t = Object.entries(carr).reduce((a, [c, k]) => a + pc.get(c).p * k, 0);
+    $('barra').style.display = n && D.aberto ? 'flex' : 'none';
+    $('bQtd').textContent = n + (n === 1 ? ' item' : ' itens');
+    $('bTot').textContent = r(t);
+  }
+  function resumo() {
+    const pc = new Map(D.produtos.map((p) => [p.c, p]));
+    const sub = Object.entries(carr).reduce((a, [c, k]) => a + pc.get(c).p * k, 0);
+    const b = D.bairros.find((x) => x.n === $('fBairro').value), taxa = b ? b.t : 0;
+    $('itens').innerHTML = Object.entries(carr).map(([c, k]) => `<div class="linha"><span>${k}× ${esc(pc.get(c).n)}</span><span>${r(pc.get(c).p * k)}</span></div>`).join('');
+    $('resumo').innerHTML = `<div class="linha tot" style="font-weight:400"><span>Produtos</span><span>${r(sub)}</span></div>`
+      + `<div class="linha"><span>Entrega</span><span>${b ? r(taxa) : 'escolha o bairro'}</span></div><div class="linha tot"><span>Total</span><span>${r(sub + taxa)}</span></div>`
+      + (D.minimo && sub < D.minimo ? `<div class="erro">Pedido mínimo: ${r(D.minimo)} em produtos.</div>` : '');
+  }
+  function ir(t) { document.querySelectorAll('.tela').forEach((x) => x.classList.toggle('on', x.id === t)); if (t === 'carrinho') { resumo(); $('erro').textContent = ''; } }
+  async function enviar() {
+    const troco = Math.round(parseFloat(($('fTroco').value || '0').replace(',', '.')) * 100) || 0;
+    const corpo = { nome: $('fNome').value, telefone: $('fTel').value, endereco: $('fEnd').value, referencia: $('fRef').value, bairro: $('fBairro').value,
+      pagamento: pag, troco: pag === 'dinheiro' ? troco : 0, obs: $('fObs').value, itens: Object.entries(carr).map(([c, q]) => ({ c, q })) };
+    if (!corpo.bairro) { $('erro').textContent = 'Escolha o bairro.'; return; }
+    $('bEnviar').disabled = true; $('erro').textContent = '';
+    try {
+      const res = await fetch(API + '/v1/cardapio/' + SLUG + '/pedido', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(corpo) });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.detail && typeof j.detail === 'string' ? j.detail : 'Confira os dados e tente de novo.');
+      try { localStorage.setItem('cli-' + SLUG, JSON.stringify({ n: corpo.nome, t: corpo.telefone, e: corpo.endereco, r: corpo.referencia, b: corpo.bairro })); } catch (_) {}
+      carr = {}; guardar();
+      $('feitoTxt').textContent = `Pedido nº ${j.numero} · total ${r(j.total)}. A ${D.nome} já recebeu.`;
+      ir('feito');
+    } catch (e) { $('erro').textContent = e.message || 'Sem internet? Tente de novo.'; }
+    $('bEnviar').disabled = false;
+  }
+  document.body.addEventListener('click', (e) => {
+    const c = e.target.closest('[data-c]'); if (c) { cat = c.dataset.c; desenhar(); scrollTo({ top: 0 }); return; }
+    const m = e.target.closest('[data-m]'), p = e.target.closest('[data-p]');
+    if (m) { if (!--carr[m.dataset.m]) delete carr[m.dataset.m]; guardar(); desenhar(); return; }
+    if (p && !p.classList.contains('pag')) { carr[p.dataset.p] = Math.min(99, (carr[p.dataset.p] || 0) + 1); guardar(); desenhar(); }
+  });
+  $('busca').oninput = desenhar;
+  $('barra').onclick = () => ir('carrinho');
+  $('fBairro').onchange = resumo;
+  $('bEnviar').onclick = enviar;
+  $('pags').onclick = (e) => { const p = e.target.dataset.p; if (!p) return; pag = p; document.querySelectorAll('.pag').forEach((x) => x.classList.toggle('on', x.dataset.p === p)); $('trocoBox').style.display = p === 'dinheiro' ? '' : 'none'; };
+  try { const c = JSON.parse(localStorage.getItem('cli-' + SLUG) || 'null'); if (c) { $('fNome').value = c.n; $('fTel').value = c.t; $('fEnd').value = c.e; $('fRef').value = c.r || ''; bairroSalvo = c.b; } } catch (_) {}
+  carregar();
+</script>
+</body></html>
