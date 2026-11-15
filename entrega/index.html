@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entregas</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icone-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Entregas">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1d1b16">
+<!-- 03/11 (Edson: "no Zé ele tem um aplicativo onde ele escaneia o pedido... e quando entrega ele finaliza"): o motoboy
+     aponta a câmera no QR da comanda e abre esta página. "Saí para entrega" e "Entreguei" vão para o PDV da loja. -->
+<style>
+  :root { --am: #f2c230; --esc: #1d1b16; --cinza: #6b6452; --verde: #1f7a3a; --verm: #b42318; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.4 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; background: #f6f4ef; color: var(--esc); }
+  header { background: var(--esc); color: #fff; padding: 16px 18px; } header small { color: #c9c2ad; display: block; font-size: 13px; }
+  main { max-width: 520px; margin: 0 auto; padding: 14px 16px 40px; }
+  .bloco { background: #fff; border: 1px solid #ebe6da; border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; }
+  .g { font-size: 20px; font-weight: 800; display: block; }
+  .bts { display: flex; gap: 8px; margin-top: 10px; }
+  .bts a { flex: 1; text-align: center; border: 1px solid var(--esc); border-radius: 10px; padding: 10px; text-decoration: none; color: var(--esc); font-weight: 700; font-size: 14px; }
+  .it { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; } .it small { color: var(--cinza); }
+  .cobrar { border: 3px solid var(--esc); border-radius: 14px; padding: 12px; text-align: center; font-weight: 900; font-size: 18px; margin-bottom: 12px; background: #fff; }
+  .grande { display: block; width: 100%; border: 0; border-radius: 16px; padding: 18px; font: 800 18px inherit; margin-bottom: 10px; cursor: pointer; }
+  .saiu { background: var(--am); } .entregue { background: var(--verde); color: #fff; } .grande:disabled { opacity: .45; }
+  .estado { text-align: center; font-weight: 800; padding: 10px; border-radius: 12px; margin-bottom: 10px; }
+  .estado.ok { background: #e6f4ea; color: var(--verde); } .estado.rua { background: #fff4d6; color: #8a5a00; }
+  .msg { color: var(--verm); text-align: center; min-height: 22px; font-weight: 600; }
+  input { width: 100%; padding: 12px; border: 1px solid #d8d2c2; border-radius: 10px; font: inherit; margin: 6px 0 10px; }
+  .vazio { text-align: center; color: var(--cinza); padding: 50px 10px; }
+  .instalar { display: none; width: 100%; border: 2px solid var(--esc); background: #fff; border-radius: 12px; padding: 12px; font: 700 15px inherit; margin-bottom: 10px; cursor: pointer; }
+  .dica { font-size: 13px; color: var(--cinza); text-align: center; margin: -4px 0 10px; }
+  .rec { display: flex; justify-content: space-between; gap: 8px; padding: 10px 0; border-top: 1px solid #f0ece2; color: var(--esc); text-decoration: none; }
+  .rec:first-of-type { border-top: 0; } .rec small { color: var(--cinza); }
+  .grande.nao{background:#fff;color:#b42318;border:2px solid #b42318}
+  .motivos{display:grid;gap:8px;margin-top:8px} .motivos button{padding:12px;border-radius:12px;border:1px solid #ddd;background:#fff;font:inherit;font-weight:700;text-align:left}
+  .motivos input{padding:12px;border-radius:12px;border:1px solid #ddd;font:inherit}
+  .estado.nao{background:#fde8e6;color:#b42318}
+</style></head><body>
+<header><b id="titulo">Entrega</b><small id="loja"></small></header>
+<main><button class="instalar" id="instalar">📲 Instalar como aplicativo</button><div class="dica" id="dicaIos"></div><div id="tela"><div class="vazio">Carregando…</div></div></main>
+<script>
+  const Q = new URLSearchParams(location.search);
+  const API = Q.get('api') || 'https://suporte-entrega.onrender.com';
+  const TK = (Q.get('t') || '').replace(/[^a-f0-9]/g, '');
+  const $ = (i) => document.getElementById(i);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (x) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[x]));
+  const r = (c) => 'R$ ' + ((c || 0) / 100).toFixed(2).replace('.', ',');
+  let fone = ''; try { fone = localStorage.getItem('motoboyFone') || ''; } catch (_) {}
+  let E = null;
+  async function carregar() {
+    if (!TK) { inicio(); return; }
+    try {
+      const res = await fetch(API + '/v1/entrega/' + TK);
+      if (!res.ok) throw new Error(res.status === 404 ? 'Entrega não encontrada (o QR vale 2 dias).' : 'Não deu para abrir agora. Tente de novo.');
+      E = await res.json();
+    } catch (e) { $('tela').innerHTML = `<div class="vazio">${esc(e.message || 'Sem internet? Tente de novo.')}</div>`; return; }
+    lembrar();
+    desenhar();
+  }
+  // 04/11 APLICATIVO (Edson: "essa tela do entregador ficasse na tela igual um aplicativo"): aberto pelo ícone (sem QR), mostra
+  // como usar e as últimas entregas abertas neste celular (guardadas só nele).
+  const recentes = () => { try { return JSON.parse(localStorage.getItem('entregasRecentes') || '[]'); } catch (_) { return []; } };
+  function lembrar() {
+    const l = recentes().filter((x) => x.t !== TK);
+    l.unshift({ t: TK, numero: E.dados.numero, cliente: E.dados.cliente || '', loja: E.loja || '', quando: Date.now() });
+    try { localStorage.setItem('entregasRecentes', JSON.stringify(l.filter((x) => x.quando > Date.now() - 2 * 864e5).slice(0, 20))); } catch (_) {}
+  }
+  function inicio() {
+    $('titulo').textContent = 'Entregas';
+    $('loja').textContent = fone ? 'seu telefone: ' + fone : '';
+    const l = recentes().filter((x) => x.quando > Date.now() - 2 * 864e5);
+    const hh = (t) => new Date(t).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    $('tela').innerHTML = '<div class="bloco" style="text-align:center"><span class="g">📷 Aponte a câmera do celular no QR da comanda</span>A entrega abre aqui: cliente, endereço, o que cobrar e os botões "Saí para entrega" e "Entreguei".</div>'
+      + (l.length ? '<div class="bloco"><b>Suas últimas entregas</b>' + l.map((x) => `<a class="rec" href="?t=${esc(x.t)}"><span><b>${esc(x.numero)}</b> ${esc(x.cliente)}<br><small>${esc(x.loja)}</small></span><small>${hh(x.quando)}</small></a>`).join('') + '</div>' : '');
+  }
+  function desenhar() {
+    const d = E.dados, tel = String(d.telefone || '').replace(/\D/g, ''), w = tel.length >= 10 ? '55' + tel.replace(/^55(?=\d{10,11}$)/, '') : '';
+    $('titulo').textContent = 'Entrega ' + d.numero;
+    $('loja').textContent = E.loja + (fone ? ' · seu telefone: ' + fone : '');
+    const itens = (d.itens || []).map((i) => `<div class="it"><span><b>${esc(i.q)}x</b> ${esc(i.n)}<br><small>${r(i.p)} cada</small></span><b>${r(i.p * i.q)}</b></div>`).join('');
+    const est = E.status === 'entregue' ? '<div class="estado ok">✅ Entregue</div>' : E.status === 'saiu' ? '<div class="estado rua">🛵 Em entrega</div>'
+      : E.status === 'nao' ? `<div class="estado nao">❌ Não entregue: ${esc(E.motivo || '')}<br><small>A loja já foi avisada. Volte com os produtos.</small></div>` : '';
+    $('tela').innerHTML = est
+      + `<div class="bloco"><span class="g">${esc(d.cliente)}</span>${esc(d.telefone || '')}
+        <div class="bts">${tel ? `<a href="tel:${tel}">📞 Ligar</a>` : ''}${w ? `<a href="https://wa.me/${w}">💬 WhatsApp</a>` : ''}</div></div>`
+      + `<div class="bloco"><span class="g">${esc(d.endereco)}</span>${d.referencia ? 'Ref.: ' + esc(d.referencia) : ''}
+        <div class="bts"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.endereco)}">🗺️ Abrir no mapa</a></div></div>`
+      + `<div class="bloco">${itens}<div class="it" style="border-top:1px dashed #ccc;margin-top:6px;padding-top:6px"><b>Total</b><b>${r(d.total)}</b></div></div>`
+      + `<div class="cobrar">${esc(d.cobrar || 'JÁ PAGO')}</div>`
+      + (fone ? '' : '<div class="bloco"><b>Seu telefone</b> (o do cadastro de motoboys da loja):<input id="fone" inputmode="tel" placeholder="(21) 99999-9999"></div>')
+      + `<button class="grande saiu" id="bSaiu" ${E.status !== 'enviar' ? 'disabled' : ''}>🛵 Saí para entrega</button>`
+      + `<button class="grande entregue" id="bEnt" ${E.status === 'entregue' ? 'disabled' : ''}>✅ Entreguei</button>`
+      // 11/11 (Edson: "e se o entregador não conseguir entregar?"): avisa a loja com o motivo; quem cancela é a loja.
+      + (E.status === 'entregue' || E.status === 'nao' ? '' : '<button class="grande nao" id="bNao">❌ Não consegui entregar</button>'
+        + '<div class="motivos" id="motivos" hidden>' + ['Cliente não atendeu', 'Endereço não encontrado', 'Cliente desistiu', 'Cliente sem dinheiro'].map((m) => `<button data-mot="${esc(m)}">${esc(m)}</button>`).join('')
+        + '<input id="motOutro" placeholder="Outro motivo"><button data-mot="outro">Enviar outro motivo</button></div>')
+      + '<div class="msg" id="msg"></div>';
+    $('bSaiu').onclick = () => marcar('saiu');
+    $('bEnt').onclick = () => marcar('entregue');
+    if ($('bNao')) $('bNao').onclick = () => { $('motivos').hidden = !$('motivos').hidden; };
+    for (const b of document.querySelectorAll('[data-mot]')) b.onclick = () => {
+      const m = b.dataset.mot === 'outro' ? $('motOutro').value.trim() : b.dataset.mot;
+      if (!m) { $('msg').textContent = 'Escreva o motivo.'; return; }
+      marcar('nao', m);
+    };
+  }
+  async function marcar(st, motivo) {
+    const f = fone || ($('fone') ? $('fone').value : '');
+    if (String(f).replace(/\D/g, '').length < 10) { $('msg').textContent = 'Digite o seu telefone com DDD.'; return; }
+    $('msg').textContent = '';
+    try {
+      const res = await fetch(API + '/v1/entrega/' + TK + '/status', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status: st, fone: f, motivo: motivo || '' }) });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(typeof j.detail === 'string' ? j.detail : 'Não deu. Tente de novo.');
+      fone = f; try { localStorage.setItem('motoboyFone', f); } catch (_) {}
+      E.status = j.status; E.motivo = motivo || '';
+      desenhar();
+    } catch (e) { $('msg').textContent = e.message || 'Sem internet? Tente de novo.'; }
+  }
+  carregar();
+  // Instalar: Android/Chrome oferece pelo botão; no iPhone, pelo Compartilhar. Já instalado (tela cheia): nada aparece.
+  const instalado = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  let pedido = null;
+  addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); pedido = e; $('instalar').style.display = 'block'; });
+  $('instalar').onclick = async () => { if (!pedido) return; pedido.prompt(); await pedido.userChoice.catch(() => {}); pedido = null; $('instalar').style.display = 'none'; };
+  addEventListener('appinstalled', () => { $('instalar').style.display = 'none'; });
+  if (!instalado && /iphone|ipad/i.test(navigator.userAgent)) $('dicaIos').textContent = 'Para ter como aplicativo: toque em Compartilhar e depois "Adicionar à Tela de Início".';
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body></html>
