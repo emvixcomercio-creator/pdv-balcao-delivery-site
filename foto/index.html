@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1d1b16">
+<meta name="robots" content="noindex">
+<title>Fotos dos pedidos</title>
+<!-- 21/11 DEFENSOR iFOOD (Edson: "faz logo pq estamos tomando volta nesses cancelamentos"; só a Emvix): o celular da loja
+     abre esta página (link do Painel do PDV), vê os pedidos do iFood que estão na loja agora e tira 2 fotos de cada um,
+     carimbadas com a loja, o número do pedido, a etapa e a hora: a prova para contestar "faltou item" no Portal. -->
+<style>
+  :root { --am: #f2c230; --esc: #1d1b16; --cinza: #6b6452; --verde: #1f7a3a; --verm: #b42318; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.4 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; background: #f6f4ef; color: var(--esc); }
+  header { background: var(--esc); color: #fff; padding: 14px 16px; position: sticky; top: 0; z-index: 2; }
+  header b { font-size: 18px; } header small { color: #c9c2ad; display: block; font-size: 13px; }
+  main { padding: 12px 14px 40px; max-width: 520px; margin: 0 auto; }
+  .ped { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #fff; border: 1px solid #e8e2d2; border-radius: 14px; padding: 14px; margin-bottom: 10px; width: 100%; text-align: left; font: inherit; color: inherit; }
+  .ped b { font-size: 20px; } .ped small { color: var(--cinza); display: block; }
+  .chips span { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 99px; padding: 2px 8px; margin-left: 4px; background: #eee; color: var(--cinza); }
+  .chips span.ok { background: #e6f4ea; color: var(--verde); }
+  .ped.feito { opacity: .55; }
+  .ped.grande { border: 2px solid var(--verm); background: #fff5f4; }
+  .risco { display: block; color: var(--verm); font-weight: 800; font-size: 13px; margin-top: 4px; }
+  .risco.alto { text-align: center; font-size: 16px; padding: 10px; background: #fde8e6; border-radius: 10px; margin-bottom: 10px; }
+  .vazio, .aviso { text-align: center; color: var(--cinza); padding: 40px 10px; }
+  .aviso { padding: 10px; background: #fff4d6; color: #8a5a00; border-radius: 10px; margin-bottom: 10px; font-weight: 600; }
+  .etapa h2 { margin: 6px 0 2px; font-size: 22px; } .etapa p { margin: 0 0 12px; color: var(--cinza); }
+  .grande { display: block; width: 100%; border: 0; border-radius: 14px; padding: 18px; font: 800 18px inherit; background: var(--am); color: #111; margin-top: 10px; }
+  .grande.cinza { background: #e9e5da; } .grande:disabled { opacity: .45; }
+  img.prev { width: 100%; border-radius: 12px; display: block; background: #ddd; }
+  .msg { text-align: center; min-height: 22px; font-weight: 600; color: var(--verm); margin-top: 8px; }
+  .ok-grande { text-align: center; padding: 40px 0 10px; font-size: 56px; }
+  input[type=file] { display: none; }
+</style>
+</head>
+<body>
+<header><b id="titulo">Fotos dos pedidos</b><small id="loja"></small></header>
+<main id="app"><div class="vazio">Carregando…</div></main>
+<input type="file" id="cam" accept="image/*" capture="environment">
+<script>
+  const Q = new URLSearchParams(location.search);
+  const API = Q.get('api') || 'https://suporte-entrega.onrender.com';
+  const TK = (Q.get('l') || '').replace(/[^a-f0-9]/g, '');
+  const app = document.getElementById('app');
+  // 22/11 (Edson: "pedido grande alto risco de cancelar tem que registrar"): de 1.301 pedidos, os de R$ 40 ou mais são 1/3
+  // dos pedidos e 70% do dinheiro perdido em cancelamento depois de entregue.
+  const GRANDE = 4000, eGrande = (p) => (p && p.total) >= GRANDE;
+  const RISCO = '⚠ PEDIDO GRANDE: alto risco de cancelar. Tem que registrar.';
+  const ETAPAS = { itens: 'Pedido e comanda', sacola: 'Sacola fechada' };
+  let dados = null, atual = null, etapa = 'itens', nomeLoja = '';
+  const esc = (t) => String(t || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // 22/11 17h (Edson: "parece que pede para tirar novamente"; #7189 fotografado 2x): entre o PDV buscar a foto (o servidor
+  // apaga) e mandar a marca de volta passam até 30 s, e a lista voltava a mostrar "📷 Foto". O celular lembra o que enviou.
+  const CHAVE = 'enviadas-' + TK;
+  let enviadas = {};
+  try { enviadas = JSON.parse(localStorage.getItem(CHAVE) || '{}'); } catch (_) {}
+  function juntarEnviadas() {
+    const agora = Date.now(); dados.fotos = dados.fotos || {};
+    for (const [id, x] of Object.entries(enviadas)) {
+      if (agora - x.t > 6 * 3600e3) { delete enviadas[id]; continue; }
+      const f = (dados.fotos[id] = dados.fotos[id] || []);
+      for (const e of x.e) if (!f.includes(e)) f.push(e);
+    }
+    try { localStorage.setItem(CHAVE, JSON.stringify(enviadas)); } catch (_) {}
+  }
+  async function carregar() {
+    if (!TK) { app.innerHTML = '<div class="vazio">Link incompleto. Abra pelo QR do Painel do PDV.</div>'; return; }
+    try {
+      const r = await fetch(API + '/v1/defensor/' + TK);
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || 'erro');
+      dados = j; nomeLoja = j.loja || '';
+      juntarEnviadas();
+      document.getElementById('loja').textContent = nomeLoja;
+      if (!naTela()) lista();
+    } catch (e) { if (!naTela()) app.innerHTML = '<div class="vazio">' + esc(e.message === 'Failed to fetch' ? 'Sem internet. Tentando de novo…' : e.message) + '</div>'; }
+  }
+  const naTela = () => !!document.querySelector('.etapa'); // tela da foto aberta (enviando ou erro)
+  // 22/11 18h (Kamila #8090: a foto sumiu): a lista se atualiza a cada 15 s e zerava o pedido escolhido enquanto a câmera
+  // estava aberta; a foto voltava sem pedido e era descartada calada. A lista não esquece mais o pedido da câmera.
+  function lista() {
+    document.getElementById('titulo').textContent = 'Fotos dos pedidos';
+    const ps = (dados && dados.pedidos) || [];
+    const feitas = (dados && dados.fotos) || {};
+    let h = dados && dados.listaVelha ? '<div class="aviso">O PDV da loja está fechado: a lista pode estar velha.</div>' : '';
+    if (!ps.length) h += '<div class="vazio">Nenhum pedido do iFood na loja agora.</div>';
+    for (const p of ps) {
+      const f = feitas[p.id] || [];
+      const tudo = f.length > 0;
+      const g = eGrande(p) && !tudo;
+      h += '<button class="ped' + (tudo ? ' feito' : '') + (g ? ' grande' : '') + '" data-id="' + esc(p.id) + '"><div><b>#' + esc(p.codigo) + '</b><small>' + esc(p.cliente) + (p.itens ? ' · ' + p.itens + ' itens' : '') + (p.total ? ' · R$ ' + (p.total / 100).toFixed(2).replace('.', ',') : '') + '</small>' + (g ? '<span class="risco">' + RISCO + '</span>' : '') + '</div>'
+        + '<div class="chips"><span class="' + (tudo ? 'ok' : '') + '">' + (tudo ? 'Foto ✓' : '📷 Foto') + '</span></div></button>';
+    }
+    app.innerHTML = h;
+    app.querySelectorAll('.ped').forEach((b) => b.onclick = () => abrir(b.dataset.id));
+  }
+  // 21/11 23h (Edson: "duas fotos acaba sendo muito demorado"): UMA foto só (itens + comanda à vista). Tocar no pedido já
+  // abre a câmera; tirou, envia sozinho e volta para a lista. Tocar de novo troca a foto.
+  function abrir(id) {
+    atual = (dados.pedidos || []).find((p) => p.id === id);
+    if (!atual) return lista();
+    etapa = 'itens';
+    const c = document.getElementById('cam'); c.value = ''; c.click();
+  }
+  function tela(previa, erro) {
+    document.getElementById('titulo').textContent = 'Pedido #' + atual.codigo;
+    app.innerHTML = '<div class="etapa">' + (eGrande(atual) ? '<div class="risco alto">' + RISCO + '</div>' : '') + (previa ? '<img class="prev" src="' + previa + '">' : '')
+      + (erro ? '<button class="grande" id="denovo">Tentar enviar de novo</button>' : '')
+      + '<button class="grande cinza" id="voltar">Voltar</button><div class="msg" id="msg"></div></div>';
+    document.getElementById('voltar').onclick = () => { atual = null; carregar(); lista(); };
+    if (erro) { document.getElementById('msg').textContent = erro; document.getElementById('denovo').onclick = () => enviar(previa); }
+  }
+  // Foto -> até 1280 px, carimbo embaixo (loja, iFood #número, etapa, data e hora com segundos), JPEG pequeno.
+  function horaTexto(d) { const z = (n) => String(n).padStart(2, '0'); return z(d.getDate()) + '/' + z(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()) + ':' + z(d.getSeconds()); }
+  let horaFoto = '';
+  document.getElementById('cam').onchange = async (ev) => {
+    const arq = ev.target.files && ev.target.files[0];
+    if (!arq) return;
+    if (!atual) { alert('Toque no pedido de novo e tire a foto.'); return; }
+    const agora = new Date(); horaFoto = horaTexto(agora);
+    const img = await new Promise((ok, erro) => { const i = new Image(); i.onload = () => ok(i); i.onerror = erro; i.src = URL.createObjectURL(arq); });
+    const k = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight));
+    const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k), faixa = Math.max(44, Math.round(w * 0.075));
+    const c = document.createElement('canvas'); c.width = w; c.height = h + faixa;
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0, w, h);
+    g.fillStyle = '#000'; g.fillRect(0, h, w, faixa);
+    g.fillStyle = '#fff'; g.font = '700 ' + Math.round(faixa * 0.36) + 'px sans-serif'; g.textBaseline = 'middle';
+    g.fillText((nomeLoja ? nomeLoja.toUpperCase() + ' · ' : '') + 'iFood #' + atual.codigo + ' · ' + ETAPAS[etapa].toUpperCase(), 10, h + faixa * 0.32);
+    g.font = '400 ' + Math.round(faixa * 0.32) + 'px monospace';
+    g.fillText(horaFoto, 10, h + faixa * 0.74);
+    let q = 0.7, url = c.toDataURL('image/jpeg', q);
+    while (url.length > 850000 && q > 0.3) { q -= 0.1; url = c.toDataURL('image/jpeg', q); }
+    enviar(url);
+  };
+  async function enviar(url) {
+    tela(url); const m = document.getElementById('msg'); m.style.color = 'var(--cinza)'; m.textContent = 'Enviando…';
+    try {
+      const r = await fetch(API + '/v1/defensor/' + TK + '/foto', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ pedido: atual.id, codigo: atual.codigo, etapa, img: url, hora: horaFoto }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.detail || 'Não enviou.');
+      dados.fotos = dados.fotos || {};
+      const f = (dados.fotos[atual.id] = dados.fotos[atual.id] || []);
+      if (!f.includes(etapa)) f.push(etapa);
+      const x = (enviadas[atual.id] = enviadas[atual.id] || { t: 0, e: [] }); x.t = Date.now(); if (!x.e.includes(etapa)) x.e.push(etapa);
+      try { localStorage.setItem(CHAVE, JSON.stringify(enviadas)); } catch (_) {}
+      m.style.color = 'var(--verde)'; m.textContent = '✅ Foto do #' + atual.codigo + ' guardada';
+      setTimeout(() => { atual = null; lista(); carregar(); }, 1200);
+    } catch (e) { tela(url, e.message === 'Failed to fetch' ? 'Sem internet.' : e.message); }
+  }
+  carregar();
+  setInterval(() => { if (!naTela()) carregar(); }, 15000);
+</script>
+</body>
+</html>
